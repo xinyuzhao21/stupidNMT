@@ -63,6 +63,9 @@ class NewAttention(nn.Module):
 
         self.impl = attn_config['attn_impl']
 
+        if "embed" in self.impl:
+            self.embed = nn.Parameter(torch.Tensor(self.num_heads, 1, self.attn_window))
+
     _attn_indices = threading.local()
 
     def get_attn_indices(self, qlen, attn_offset, device):
@@ -218,8 +221,7 @@ class NewAttention(nn.Module):
                 # conv_filter: (self.window_size,)
 
                 conv_filters = {}  # conv_filters[std] stores conv filters
-                masked_conv_filters = {} # conv_filters[std][offset] stores masked conv filters
-
+                
                 attn_std, attn_offset = attn_configs['attn_std'], attn_configs['attn_offset']
                 head_configs = defaultdict(list)
                 for i, c in enumerate(zip(attn_std, attn_offset)):
@@ -230,10 +232,9 @@ class NewAttention(nn.Module):
                     conv_filter = (1 / (attn_std * math.sqrt(2 * math.pi)) * torch.exp(
                         - 1 / 2 * (distance_diff / attn_std) ** 2)).view(1, 1, -1)
                     conv_filters[attn_std] = conv_filter
-                    conv_filter[self.attn_window - (self.half_window + attn_offset):] = 0
-                    masked_conv_filters[attn_std][attn_offset] = conv_filter
+                    conv_filter[self.attn_window - (self.half_window + attn_offset):] = 0         
 
-            yield attn_configs, conv_filters, masked_conv_filters
+            yield attn_configs, conv_filters
 
     def mha_reshape(self, tensor, batch_size):
         '''
@@ -313,6 +314,25 @@ class NewAttention(nn.Module):
         attn_indices = self.get_attn_indices(max(queries_shape[1], decoder_position + 1), attn_offset, values.device)
 
         return self.gather_reshape(attended, attn_indices, batch_size, queries_shape[1], decoder_position)
+
+    def attention_embed(self, values, keys, queries, key_mask=None, mask=None, layer_i=0, decoder_position=-1):
+
+        queries_shape = queries.shape  # B*H x L x proj_dim
+        values_shape = values.shape
+        batch_size = queries_shape[0] // self.num_heads
+
+        curr_conv_filter = self.embed        
+        values = values.view(batch_size, self.num_heads, values_shape[1], values_shape[2])
+        if key_mask is not None:
+            values.masked_fill_(key_mask[:, None, :, None], float(0))
+
+        values = values.transpose(3, 1).transpose(3, 2).contiguous().view(batch_size * self.projection_dim,
+                                                                          self.num_heads, -1)
+        attended = F.conv1d(values, curr_conv_filter, padding=self.half_window, groups=self.num_heads)
+        attended = attended.view(batch_size, self.projection_dim, self.num_heads, -1).transpose(1, 2).transpose(2,
+                                                                                                                3).contiguous()
+        if decoder_position != -1: attended = attended[:,:,decoder_position:decoder_position+1,:]
+        return self.mha_reshape(attended, batch_size)
 
     def compute_together(self, attn_type, attn_std, attn_offset):
 
@@ -461,6 +481,10 @@ class NewAttention(nn.Module):
 
         elif 'index' in self.impl:
             attended = self.attention_index(values, keys, queries,
+                                  key_mask, attention_mask, layer_i, decoder_position)
+
+        elif 'embed' in self.impl:
+            attended = self.attention_embed(values, keys, queries,
                                   key_mask, attention_mask, layer_i, decoder_position)
 
         return self.output_projection(attended)

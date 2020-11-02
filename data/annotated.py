@@ -231,7 +231,7 @@ class AnnotatedTextDataset(TextDataset):
 
         # First, clean-up any incomplete preprocessing files
         for path in glob.glob(os.path.join(self.preprocess_directory, '*.incomplete')):
-            os.remove(os.path.join(self.preprocess_directory, path))
+            os.remove(path)
 
         bpe_code_path = os.path.join(self.preprocess_directory, 'bpe.32000')
         if not os.path.exists(bpe_code_path):

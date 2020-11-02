@@ -169,7 +169,7 @@ def add_new_transformer_args(parser):
         '--enc-attn-impl',
         type=str,
         default='full',
-        choices=['full', 'conv', 'index'],
+        choices=['full', 'conv', 'index', 'embed'],
         help='choose which implementation to use'
     )
 
@@ -214,7 +214,7 @@ def add_new_transformer_args(parser):
         '--dec-attn-impl',
         type=str,
         default='full',
-        choices=['full', 'conv', 'index'],
+        choices=['full', 'conv', 'index', 'embed'],
         help='choose which implementation to use'
     )
 

@@ -12,6 +12,19 @@ Our approach uses hard-coded Gaussian distribution instead of learned attention 
 
 This code base is adapted from [synst](https://github.com/dojoteef/synst).
 
+## Additional notes
+
+To use attention embedding:
+Set enc-attn-impl, dec-attn-impl to embed
+Window size of embedding is set in enc-attn-window and dec-attn-window
+Other parameters are the same in stupidNMT
+
+Example (training on iwslt_en_de dataset, using embedding size of 7 in both self-attention of encoder and decoder, learn parameters in cross-attention):
+
+```sh
+python main.py -b 6000 --dataset iwslt_en_de  --model new_transformer --enc-attn-impl embed  --enc-attn-window 7 --enc-attn-type normal --enc-attn-offset -1 1 --dec-attn-impl embed --dec-attn-type normal --dec-attn-offset -1 0  --dec-attn-window 7  --enc-dec-attn-type learned --enc-dec-attn-offset -1 1   --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5   -d data/raw/wmt -p data/preprocessed/iwslt -v train   --checkpoint-interval 600 --accumulate 1   --checkpoint-directory experiments/iwslt_en_de_01   --label-smoothing 0.0 --learning-rate-scheduler linear --learning-
+```
+
 ## Requirements
 
 The code requires Python 3.7+. The python dependencies can be installed with the

@@ -98,7 +98,7 @@ def tokenize(path, output_path, buffer=1000):
             file=sys.stdout # needed to make tqdm_wrap_stdout work
         )
         with tqdm_wrap_stdout():
-            for result in results:
+            for result in results:       
                 word_counts += result.get()
 
             pool.join()

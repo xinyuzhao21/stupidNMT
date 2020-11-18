@@ -64,7 +64,8 @@ class NewAttention(nn.Module):
         self.impl = attn_config['attn_impl']
 
         if "embed" in self.impl:
-            self.embed = nn.Parameter(torch.Tensor(self.num_heads, 1, self.attn_window))
+            self.embed = nn.Parameter(torch.nn.init.xavier_uniform(
+                torch.Tensor(self.num_heads, 1, self.attn_window)))
 
     _attn_indices = threading.local()
 

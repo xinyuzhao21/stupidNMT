@@ -52,7 +52,7 @@ python main.py -b 6000 --dataset iwslt_en_de \
   --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5 \
   -d data/raw/iwslt -p data/preprocessed/iwslt -v train \
   --checkpoint-interval 600 --accumulate 1 \
-  --checkpoint-directory experiments/iwslt_en_de_01 \
+  --checkpoint-directory experiments/baseline_2 \
   --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4
 ```
 

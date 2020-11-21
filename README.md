@@ -23,8 +23,8 @@ python main.py -b 6000 --dataset iwslt_en_de  --model new_transformer \
   --enc-attn-impl embed --enc-attn-window 3 \
   --dec-attn-impl embed --dec-attn-window 3 \
   --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5 \
-  -d data/raw/iwslt -p data/preprocessed/iwslt -v train\
-  --checkpoint-interval 600 --accumulate 1 \
+  -d data/raw/iwslt -p data/preprocessed/iwslt \
+  -v train --checkpoint-interval 600 --accumulate 1 \
   --checkpoint-directory experiments/iwslt_en_de_01 \
   --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4
 ```
@@ -37,8 +37,8 @@ python main.py -b 6000 --dataset iwslt_en_de \
   --enc-attn-type normal --enc-attn-offset -1 1 \
   --dec-attn-type normal --dec-attn-offset -1 0 \
   --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5 \
-  -d data/raw/iwslt -p data/preprocessed/iwslt -v train \
-  --checkpoint-interval 600 --accumulate 1 \
+  -d data/raw/iwslt -p data/preprocessed/iwslt \
+  -v train --checkpoint-interval 600 --accumulate 1 \
   --checkpoint-directory experiments/baseline_1 \
   --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4
 ```
@@ -50,10 +50,25 @@ python main.py -b 6000 --dataset iwslt_en_de \
   --model new_transformer \
   --enc-attn-type learned --dec-attn-type learned \
   --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5 \
-  -d data/raw/iwslt -p data/preprocessed/iwslt -v train \
-  --checkpoint-interval 600 --accumulate 1 \
+  -d data/raw/iwslt -p data/preprocessed/iwslt \
+  -v train --checkpoint-interval 600 --accumulate 1 \
   --checkpoint-directory experiments/baseline_2 \
   --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4
+```
+
+To generate translated output on test set, replace the last three lines of the above commands by (change restore and output-directory accordingly):
+
+```sh
+  --batch-size 1 --batch-method example --split test \
+  --restore /tmp/stupidnmt/checkpoints/checkpoint.pt \
+  --average-checkpoints 5 translate \
+  --output-directory . --max-decode-length 50 --length-basis input_lens --order-output
+```
+
+After generating the output in `output.txt`, run the following line to compute BLEU score:
+
+```sh
+cat output.txt | sacrebleu data/preprocessed/iwslt/test.de
 ```
 
 ## Requirements

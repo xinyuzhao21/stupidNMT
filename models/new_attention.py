@@ -62,10 +62,15 @@ class NewAttention(nn.Module):
         self.attn_std_uniq = attn_config['attn_std_uniq']
 
         self.impl = attn_config['attn_impl']
-
-        if "embed" in self.impl:
+        self.which_attn = attn_config['which_attn']
+        
+        if "embed" in self.impl and self.which_attn == "encoder":
             self.embed = nn.Parameter(torch.nn.init.xavier_uniform(
                 torch.Tensor(self.num_heads, 1, self.attn_window)))
+
+        if "embed" in self.impl and self.which_attn == "decoder":
+            self.embed = nn.Parameter(torch.nn.init.xavier_uniform(
+                torch.Tensor(self.num_heads, 1, self.half_window+1)))            
 
     _attn_indices = threading.local()
 
@@ -73,8 +78,8 @@ class NewAttention(nn.Module):
 
         attn_idx_store = NewAttention._attn_indices.__dict__
 
-        if device not in attn_idx_store:
-            indices_q = torch.arange(self.max_absolute_offset, self.max_qlen + self.max_absolute_offset).view(1, -1)
+        if device not in attn_idx_store or attn_idx_store[device].shape[1] < qlen + self.max_absolute_offset:
+            indices_q = torch.arange(self.max_absolute_offset, qlen + self.max_absolute_offset).view(1, -1)
             attn_ofs_uniq = torch.tensor(self.attn_ofs_uniq).view(-1, 1)
             attn_idx_store[device] = (indices_q + attn_ofs_uniq).to(device)
         offset_idx = [self.attn_ofs_uniq.index(i) for i in attn_offset]
@@ -232,8 +237,9 @@ class NewAttention(nn.Module):
                     attn_std, attn_offset = hc[0], hc[1]
                     conv_filter = (1 / (attn_std * math.sqrt(2 * math.pi)) * torch.exp(
                         - 1 / 2 * (distance_diff / attn_std) ** 2)).view(1, 1, -1)
-                    conv_filters[attn_std] = conv_filter
-                    conv_filter[self.attn_window - (self.half_window + attn_offset):] = 0         
+                    if attn_std not in conv_filters: conv_filters[attn_std] = {}
+                    conv_filters[attn_std][attn_offset] = conv_filter
+                    conv_filter[self.attn_window - (self.half_window + attn_offset):] = 0     
 
             yield attn_configs, conv_filters
 
@@ -308,6 +314,7 @@ class NewAttention(nn.Module):
                                                                           self.num_heads, -1)
         attended = F.conv1d(values, curr_conv_filter, padding=self.half_window + self.max_absolute_offset,
                             groups=self.num_heads)
+
         attended = attended.view(batch_size, self.projection_dim, self.num_heads, -1).transpose(1, 2).transpose(2,
                                                                                                                 3).contiguous()
 
@@ -321,18 +328,24 @@ class NewAttention(nn.Module):
         queries_shape = queries.shape  # B*H x L x proj_dim
         values_shape = values.shape
         batch_size = queries_shape[0] // self.num_heads
-
-        curr_conv_filter = self.embed        
+        
         values = values.view(batch_size, self.num_heads, values_shape[1], values_shape[2])
         if key_mask is not None:
             values.masked_fill_(key_mask[:, None, :, None], float(0))
 
         values = values.transpose(3, 1).transpose(3, 2).contiguous().view(batch_size * self.projection_dim,
                                                                           self.num_heads, -1)
+
+        curr_conv_filter = self.embed
         attended = F.conv1d(values, curr_conv_filter, padding=self.half_window, groups=self.num_heads)
+        if self.which_attn == "decoder":
+            attended = attended[:, :, :-self.half_window]
+        if decoder_position != -1: 
+            attended = attended[:, :, decoder_position:decoder_position+1]
+
         attended = attended.view(batch_size, self.projection_dim, self.num_heads, -1).transpose(1, 2).transpose(2,
-                                                                                                                3).contiguous()
-        if decoder_position != -1: attended = attended[:,:,decoder_position:decoder_position+1,:]
+                                                                                                                3).contiguous()                
+
         return self.mha_reshape(attended, batch_size)
 
     def compute_together(self, attn_type, attn_std, attn_offset):
@@ -475,7 +488,6 @@ class NewAttention(nn.Module):
         if 'full' in self.impl:
             attended = self.attention(values, keys, queries,
                                   key_mask, attention_mask, layer_i, decoder_position)
-
         elif 'conv' in self.impl:
             attended = self.attention_conv(values, keys, queries,
                                   key_mask, attention_mask, layer_i, decoder_position)

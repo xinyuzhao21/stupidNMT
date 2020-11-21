@@ -12,28 +12,48 @@ Our approach uses hard-coded Gaussian distribution instead of learned attention 
 
 This code base is adapted from [synst](https://github.com/dojoteef/synst).
 
-## Additional Notes
+## Additional Notes (Stephen)
 
-To use attention embedding:
+To use attention embedding, set `enc-attn-impl`, `dec-attn-impl` to `embed` and set `enc-attn-window` and `dec-attn-window` as the windows size of attention embedding. Other parameters are the same as those in stupidNMT. All our experiments use a learned cross-attention as in original Transformer, since we only want to analyze the self-attention part.
 
-Set enc-attn-impl, dec-attn-impl to embed.
-
-Window size of embedding is set in enc-attn-window and dec-attn-window.
-
-Other parameters are the same in stupidNMT.
-
-Example (training on iwslt_en_de dataset, using embedding size of 7 in both self-attention of encoder and decoder, learn parameters in cross-attention):
+To train a self-attention using attention embedding with window size 3, run the followings:
 
 ```sh
 python main.py -b 6000 --dataset iwslt_en_de  --model new_transformer \
---enc-attn-impl embed  --enc-attn-window 7 --enc-attn-type normal \
---enc-attn-offset -1 1 --dec-attn-impl embed --dec-attn-type normal \
---dec-attn-offset -1 0  --dec-attn-window 7  --enc-dec-attn-type learned \
---enc-dec-attn-offset -1 1   --embedding-size 288 --hidden-dim 507 \
---num-heads 4 --num-layers 5   -d data/raw/wmt -p data/preprocessed/iwslt \
--v train   --checkpoint-interval 600 --accumulate 1   \
---checkpoint-directory experiments/iwslt_en_de_01   --label-smoothing 0.0 \
---learning-rate-scheduler linear --learning-rate 3e-4
+  --enc-attn-impl embed --enc-attn-window 3 \
+  --dec-attn-impl embed --dec-attn-window 3 \
+  --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5 \
+  -d data/raw/iwslt -p data/preprocessed/iwslt -v train\
+  --checkpoint-interval 600 --accumulate 1 \
+  --checkpoint-directory experiments/iwslt_en_de_01 \
+  --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4
+```
+
+Two baselins used in our experiments. Baseline 1 corresponds to the Gaussian self-attention:
+
+```sh
+python main.py -b 6000 --dataset iwslt_en_de \
+  --model new_transformer \
+  --enc-attn-type normal --enc-attn-offset -1 1 \
+  --dec-attn-type normal --dec-attn-offset -1 0 \
+  --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5 \
+  -d data/raw/iwslt -p data/preprocessed/iwslt -v train \
+  --checkpoint-interval 600 --accumulate 1 \
+  --checkpoint-directory experiments/baseline_1 \
+  --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4
+```
+
+Baseline 2 corresponds to the learned self-attention, which is the same as original Transformer model:
+
+```sh
+python main.py -b 6000 --dataset iwslt_en_de \
+  --model new_transformer \
+  --enc-attn-type learned --dec-attn-type learned \
+  --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5 \
+  -d data/raw/iwslt -p data/preprocessed/iwslt -v train \
+  --checkpoint-interval 600 --accumulate 1 \
+  --checkpoint-directory experiments/iwslt_en_de_01 \
+  --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4
 ```
 
 ## Requirements

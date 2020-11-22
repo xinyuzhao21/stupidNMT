@@ -331,6 +331,7 @@ class NewTransformer(nn.Module):
                            'attn_ofs_uniq': self.attn_ofs_uniq,
                            'attn_std_uniq': self.attn_std_uniq
                            }
+        print(config.enc_dec_attn_type)
         enc_dec_attn_config = {'attn_type': config.enc_dec_attn_type,
                                'attn_std': config.enc_dec_attn_std,
                                'attn_offset': config.enc_dec_attn_offset,

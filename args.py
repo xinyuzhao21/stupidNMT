@@ -224,7 +224,7 @@ def add_new_transformer_args(parser):
         type=str,
         nargs='+',
         default='learned',
-        choices=['normal', 'uniform', 'no', 'learned'],
+        choices=['normal', 'uniform', 'no', 'learned','dot'],
         help='What type of attention we are using for the rules'
     )
     group.add_argument(
@@ -280,7 +280,7 @@ def add_new_transformer_args(parser):
         '--enc-dec-attn-impl',
         type=str,
         default='full',
-        choices=['full', 'conv', 'index','dotonly'],
+        choices=['full', 'conv', 'index'],
         help='choose which implementation to use'
     )
     group.add_argument(

@@ -1,3 +1,4 @@
+nohup \
 python main.py -b 6000 --dataset iwslt_en_de \
   --model new_transformer \
   --enc-attn-type learned \
@@ -8,4 +9,6 @@ python main.py -b 6000 --dataset iwslt_en_de \
   -d data/raw/iwslt_en_de -p data/preprocessed/iwslt_en_de -v train \
   --checkpoint-interval 600 --accumulate 1 \
   --checkpoint-directory experiments/iwslt_en_de_01 \
-  --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4
+  --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4 \
+  --early-stopping 10 \
+  &

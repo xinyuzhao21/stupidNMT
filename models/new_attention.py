@@ -364,7 +364,7 @@ class NewAttention(nn.Module):
         attn_type, attn_std, attn_offset = attn_configs['attn_type'], attn_configs['attn_std'], attn_configs[
             'attn_offset']
 
-        if all(a == 'learned' for a in attn_type):  # all heads are learned
+        if all(a in ['learned','dot'] for a in attn_type):  # all heads are learned
 
             logits = self.scale * torch.bmm(queries, keys.transpose(2, 1))
 
@@ -500,8 +500,6 @@ class NewAttention(nn.Module):
             attended = self.attention_embed(values, keys, queries,
                                   key_mask, attention_mask, layer_i, decoder_position)
 
-        elif 'dotonly' in self.impl:
-            attended = self.attention(values, values, values,
-                                      key_mask, attention_mask, layer_i, decoder_position)
+
 
         return self.output_projection(attended)

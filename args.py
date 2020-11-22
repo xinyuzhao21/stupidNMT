@@ -280,7 +280,7 @@ def add_new_transformer_args(parser):
         '--enc-dec-attn-impl',
         type=str,
         default='full',
-        choices=['full', 'conv', 'index'],
+        choices=['full', 'conv', 'index','dotonly'],
         help='choose which implementation to use'
     )
     group.add_argument(

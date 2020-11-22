@@ -500,4 +500,8 @@ class NewAttention(nn.Module):
             attended = self.attention_embed(values, keys, queries,
                                   key_mask, attention_mask, layer_i, decoder_position)
 
+        elif 'dotonly' in self.impl:
+            attended = self.attention(values, values, values,
+                                      key_mask, attention_mask, layer_i, decoder_position)
+
         return self.output_projection(attended)

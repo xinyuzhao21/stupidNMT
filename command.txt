@@ -1,0 +1,11 @@
+python main.py -b 6000 --dataset iwslt_en_de \
+  --model new_transformer \
+  --enc-attn-type learned \
+  --dec-attn-type learned \
+  --enc-dec-attn-type learned \
+  --enc-dec-attn-layer 0 0 0 0 1 --enc-dec-attn-num-heads 0 0 0 0 1 \
+  --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5 \
+  -d data/raw/iwslt_en_de -p data/preprocessed/iwslt_en_de -v train \
+  --checkpoint-interval 600 --accumulate 1 \
+  --checkpoint-directory experiments/iwslt_en_de_01 \
+  --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4

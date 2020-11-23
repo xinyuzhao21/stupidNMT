@@ -99,7 +99,6 @@ class TransformerEncoderLayer(nn.Module):
         state = self.self_attention(
             state,  # residual
             state, state, state, mask,  # passed to multiheaded attention
-            layer_i=layer_i
         )
 
         if hasattr(self, 'ffn'):

@@ -7,7 +7,7 @@ import pdb
 import torch
 from torch import nn
 
-from models.new_attention import NewAttention
+from models.attention import MultiHeadedAttention
 from models.attention import MultiHeadedAttention
 from models.embeddings import PositionEmbedding, TokenEmbedding
 from models.utils import LabelSmoothingLoss, Translator
@@ -80,7 +80,7 @@ class TransformerEncoderLayer(nn.Module):
             print('enc layer %i has ffn' % layer_i)
 
         self.self_attention = TransformerSublayer(
-            NewAttention(attn_config, dim, num_heads),
+            MultiHeadedAttention(dim, num_heads),
             dim, dropout_p
         )
 
@@ -131,7 +131,7 @@ class TransformerDecoderLayer(nn.Module):
             print('dec layer %i has ffn' % layer_i)
 
         self.self_attention = TransformerSublayer(
-            NewAttention(dec_attn_config, dim, num_heads),
+            MultiHeadedAttention( dim, num_heads),
             dim, dropout_p
         )
 
@@ -147,7 +147,7 @@ class TransformerDecoderLayer(nn.Module):
             assert src_num_heads != 0
 
             self.source_attention = TransformerSublayer(
-                NewAttention(enc_dec_attn_config, dim, src_num_heads),
+                MultiHeadedAttention( dim, src_num_heads),
                 dim, dropout_p
             )
 

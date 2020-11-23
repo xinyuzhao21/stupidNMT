@@ -80,7 +80,7 @@ class TransformerEncoderLayer(nn.Module):
             print('enc layer %i has ffn' % layer_i)
 
         self.self_attention = TransformerSublayer(
-            MultiHeadedAttention(dim, num_heads),
+            MultiHeadedAttention(attn_config, dim, num_heads),
             dim, dropout_p
         )
 
@@ -99,6 +99,7 @@ class TransformerEncoderLayer(nn.Module):
         state = self.self_attention(
             state,  # residual
             state, state, state, mask,  # passed to multiheaded attention
+            layer_i=layer_i
         )
 
         if hasattr(self, 'ffn'):
@@ -130,7 +131,7 @@ class TransformerDecoderLayer(nn.Module):
             print('dec layer %i has ffn' % layer_i)
 
         self.self_attention = TransformerSublayer(
-            MultiHeadedAttention( dim, num_heads),
+            MultiHeadedAttention(dec_attn_config, dim, num_heads),
             dim, dropout_p
         )
 
@@ -146,7 +147,7 @@ class TransformerDecoderLayer(nn.Module):
             assert src_num_heads != 0
 
             self.source_attention = TransformerSublayer(
-                MultiHeadedAttention( dim, src_num_heads),
+                MultiHeadedAttention(enc_dec_attn_config, dim, src_num_heads),
                 dim, dropout_p
             )
 
@@ -166,8 +167,8 @@ class TransformerDecoderLayer(nn.Module):
         cache = inputs.get('cache')
 
         decoder_position = state.shape[1] - 1
-        kwargs={}
-        # kwargs = {'layer_i': layer_i}
+
+        kwargs = {'layer_i': layer_i}
         if self.causal and cache is not None:
             # If caching, only want the last one sequence values. Requires no causal masking.
             residual = state[:, -1:]

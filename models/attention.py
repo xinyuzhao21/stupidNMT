@@ -11,7 +11,7 @@ from utils import same_tensor
 
 class MultiHeadedAttention(nn.Module):
     ''' Implement a multi-headed attention module '''
-    def __init__(self, embed_dim, num_heads=1):
+    def __init__(self,attn_config, embed_dim, num_heads=1):
         ''' Initialize the attention module '''
         super(MultiHeadedAttention, self).__init__()
 
@@ -96,7 +96,7 @@ class MultiHeadedAttention(nn.Module):
         )
 
     def forward(self, values, keys, queries, # pylint:disable=arguments-differ
-                key_mask=None, attention_mask=None, num_queries=0):
+                key_mask=None, attention_mask=None, num_queries=0, layer_i=0, decoder_position=-1):
         ''' Forward pass of the attention '''
         # pylint:disable=unbalanced-tuple-unpacking
         # print("multiheaded attention")

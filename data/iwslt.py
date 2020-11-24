@@ -17,6 +17,7 @@ class IWSLTDataset(AnnotatedTextDataset):
         ('iwslt_en_de.tgz', 'https://wit3.fbk.eu/archive/2016-01/texts/en/de/en-de.tgz'),
         ('iwslt_test_en_de.tgz', 'https://wit3.fbk.eu/archive/2016-01-test/texts/en/de/en-de.tgz'),
         ('iwslt_test_de_en.tgz', 'https://wit3.fbk.eu/archive/2016-01-test/texts/de/en/de-en.tgz'),
+        ('iwslt17_test_en_de.tgz', 'https://wit3.fbk.eu/archive/2017-01-trnted/texts/en/de/en-de.tgz')
     ]
     RAW_SPLITS = {
         'train': [
@@ -34,9 +35,7 @@ class IWSLTDataset(AnnotatedTextDataset):
             ('en-de/IWSLT16.TED.tst2014.en-de.en.xml', 'en-de/IWSLT16.TED.tst2014.en-de.de.xml'),
         ],
         'test': [
-            ('en-de/IWSLT16.QED.tst2016.en-de.en.xml', 'de-en/IWSLT16.QED.tst2016.de-en.de.xml'),
-            ('en-de/IWSLT16.TED.tst2015.en-de.en.xml', 'de-en/IWSLT16.TED.tst2015.de-en.de.xml'),
-            ('en-de/IWSLT16.TED.tst2016.en-de.en.xml', 'de-en/IWSLT16.TED.tst2016.de-en.de.xml'),
+            ('en-de/IWSLT17.TED.tst2013.en-de.en.xml', 'de-en/IWSLT17.TED.tst2013.de-en.de.xml')
         ]
     }
     SPLITS = {

@@ -12,3 +12,19 @@ python main.py -b 6000 --dataset iwslt_en_de \
   --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4 \
   --early-stopping 10 \
   &
+
+ CUDA_VISIBLE_DEVICES=0 python main.py \
+   --dataset iwslt_en_de \
+ --model new_transformer \
+  --enc-attn-type normal \
+  --enc-attn-offset -1 1 \
+  --dec-attn-type normal \
+  --dec-attn-offset -1 0 \
+  --enc-dec-attn-type normal \--enc-dec-attn-offset -1 1 \
+  --embedding-size 288 --hidden-dim 507 \
+  --num-heads 4 --num-layers 5 \
+  -d data/raw/wmt -p data/preprocessed/wmt \
+  --batch-size 1 --batch-method example --split valid \
+  --restore experiments/iwslt_en_de_01/checkpoint.pt \
+  --average-checkpoints 5 translate \
+  --max-decode-length 50 --length-basis input_lens --order-output \

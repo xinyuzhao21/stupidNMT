@@ -1,0 +1,13 @@
+nohup \
+python main.py -b 6000 --dataset iwslt_en_de \
+  --model new_transformer \
+  --enc-attn-type normal --enc-attn-offset -1 1 \
+  --dec-attn-type normal --dec-attn-offset -1 0 \
+  --enc-dec-attn-type normal --enc-dec-attn-offset -1 1 \
+  --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5 \
+  -d data/raw/wmt -p data/preprocessed/wmt -v train \
+  --checkpoint-interval 600 --accumulate 1 \
+  --checkpoint-directory experiments/iwslt_en_de_01 \
+  --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4 \
+  --early-stopping 10 \
+  &

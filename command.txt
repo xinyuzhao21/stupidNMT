@@ -28,3 +28,18 @@ python main.py -b 6000 --dataset iwslt_en_de \
   --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4 \
   --early-stopping 10 \
   &
+
+  CUDA_VISIBLE_DEVICES=0 python main.py \
+  --dataset iwslt_en_de  \
+  --model new_transformer \
+  --enc-attn-type learned \
+  --dec-attn-type learned \
+  --enc-dec-attn-type learned \
+  --enc-dec-attn-layer 0 0 0 0 1 --enc-dec-attn-num-heads 0 0 0 0 1 \
+  --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5 \
+  -d data/raw/iwslt -p data/preprocessed/iwslt
+  --batch-size 1 --batch-method example --split valid \
+  --restore experiments/iwslt_en_de_01/checkpoint.pt \
+  --average-checkpoints 5 translate \
+  --max-decode-length 50 --length-basis input_lens --order-output \
+

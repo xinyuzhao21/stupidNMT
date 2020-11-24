@@ -28,3 +28,91 @@ python main.py -b 6000 --dataset iwslt_en_de \
   --restore experiments/iwslt_en_de_01/checkpoint.pt \
   --average-checkpoints 5 translate \
   --max-decode-length 50 --length-basis input_lens --order-output \
+
+
+  CUDA_VISIBLE_DEVICES=0 python main.py \
+   --dataset iwslt_en_de \
+ --model new_transformer \
+ --enc-attn-type normal \
+   --enc-attn-offset -1 1 \
+   --dec-attn-type normal \
+  --dec-attn-offset -1 0 \
+  --enc-dec-attn-type normal \--enc-dec-attn-offset -1 1 \
+   --embedding-size 288 --hidden-dim 507 \
+   --num-heads 4 --num-layers 5 \
+   -d data/raw/wmt -p data/preprocessed/wmt \
+   --batch-size 1 --batch-method example --split dev \
+  --restore experiments/iwslt_en_de_01/checkpoint.pt \
+   --average-checkpoints 5 translate \
+   --max-decode-length 50 --length-basis input_lens --order-output \
+
+
+  CUDA_VISIBLE_DEVICES=0 python main.py \
+   --dataset iwslt_en_de \
+  --model new_transformer \
+  --enc-attn-type learned \
+  --dec-attn-type learned \
+  --enc-dec-attn-type learned \
+  --enc-dec-attn-layer 0 0 0 0 1 --enc-dec-attn-num-heads 0 0 0 0 1 \
+  --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5 \
+   -d data/raw/iwslt_en_de -p data/preprocessed/iwslt_en_de \
+   --batch-size 1 --batch-method example --split dev \
+  --restore experiments/iwslt_en_de_01/checkpoint.pt \
+   --average-checkpoints 5 translate \
+   --max-decode-length 50 --length-basis input_lens --order-output \
+
+
+   2013
+   BLEU+case.mixed+lang.en-de+numrefs.1+smooth.exp+test.iwslt17/tst2013+tok.intl+version.1.2.11 = 20.07 55.3/26.6/14.7/8.3 (BP = 0.973 ratio = 0.973 hyp_len = 19348 ref_len = 19877)
+
+test
+BLEU+case.mixed+lang.en-de+numrefs.1+smooth.exp+tok.intl+version.1.2.11 = 17.11 49.4/22.2/11.8/6.7 (BP = 1.000 ratio = 1.028 hyp_len = 47054 ref_len = 45788)
+
+valid
+BLEU+case.mixed+lang.en-de+numrefs.1+smooth.exp+tok.intl+version.1.2.11 = 19.64 54.9/26.2/14.5/8.3 (BP = 0.964 ratio = 0.965 hyp_len = 144860 ref_len = 150177)
+
+nohup \
+python main.py -b 6000 --dataset iwslt_en_de \
+  --model new_transformer \
+  --enc-attn-type learned \
+  --dec-attn-type learned \
+  --enc-dec-attn-type dot \
+  --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5 \
+  -d data/raw/iwslt_en_de -p data/preprocessed/iwslt_en_de -v train \
+  --checkpoint-interval 600 --accumulate 1 \
+  --checkpoint-directory experiments/iwslt_en_de_01 \
+  --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4 \
+  --early-stopping 10 \
+  &
+
+nohup \
+python main.py --dataset iwslt_en_de \
+  --model new_transformer \
+  --enc-attn-type learned \
+  --dec-attn-type learned \
+  --enc-dec-attn-type dot \
+  --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5 \
+ --batch-size 1 --batch-method example --split dev \
+  -d data/raw/iwslt_en_de -p data/preprocessed/iwslt_en_de \
+  --restore experiments/iwslt_en_de_01/checkpoint.pt \
+   --average-checkpoints 5 translate \
+   --max-decode-length 50 --length-basis input_lens --order-output \
+
+
+  no projection for key query projection
+  BLEU+case.mixed+lang.en-de+numrefs.1+smooth.exp+test.iwslt17/tst2013+tok.intl+version.1.2.11 = 30.12 62.7/36.4/23.4/15.5 (BP = 1.000 ratio = 1.005 hyp_len = 19986 ref_len = 19877)
+
+
+nohup \
+python main.py -b 6000 --dataset iwslt_en_de \
+  --model new_transformer \
+  --enc-attn-type normal \
+  --dec-attn-type normal \
+  --enc-dec-attn-type dot \
+  --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5 \
+  -d data/raw/iwslt_en_de -p data/preprocessed/iwslt_en_de -v train \
+  --checkpoint-interval 600 --accumulate 1 \
+  --checkpoint-directory experiments/iwslt_en_de_01_no_projection \
+  --label-smoothing 0.0 --learning-rate-scheduler linear --learning-rate 3e-4 \
+  --early-stopping 10 \
+  &

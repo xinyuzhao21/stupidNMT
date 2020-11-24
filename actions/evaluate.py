@@ -121,7 +121,11 @@ class Evaluator(object):
                 nll, length = self.evaluate(batch)
                 if length:
                     neg_log_likelihood.update(nll / length)
-
+        if self.config.per_sentence_report:
+            with open('scores.txt') as f:
+                for score in neg_log_likelihood.values:
+                    f.write(score+'\n')
+            
         experiment.log_metric('nll', neg_log_likelihood.average)
         return neg_log_likelihood.average
 

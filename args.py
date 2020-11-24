@@ -550,10 +550,15 @@ def add_evaluate_args(parser):
         '--watch-directory',
         type=str,
         default=None,
-        help='What directory to watch for new checkpoints.'
+        help='What directory to wperatch for new checkpoints.'
         ' If not provided, run a single evaluation using the restore parameter.'
     )
-
+    group.add_argument(
+        '--per-sentence-report',
+        default=False,
+        action='store_true',
+        help='Output the loss for each sentence.'
+    )
     group.set_defaults(gold_p=0)
     group.set_defaults(dropout_p=0)
 

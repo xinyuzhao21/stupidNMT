@@ -1,0 +1,37 @@
+python main.py --dataset iwslt_en_de   --model new_transformer   --enc-attn-type learned   --dec-attn-type learned   --enc-dec-attn-type dot   --embedding-size 288 --hidden-dim 507 --num-heads 4 --num-layers 5  --batch-size 1 --batch-method example --split dev   -d data/raw/iwslt_en_de -p data/preprocessed/iwslt_en_de   --restore experiments/iwslt_en_de_01/checkpoint.pt    --average-checkpoints 5 translate    --max-decode-length 50 --length-basis input_lens --order-output 
+Running torch 1.4.0
+Examples=993
+Vocab Size=31971
+Input Length=(min=2, avg=22, max=135)
+Target Length=(min=4, avg=24, max=126)
+enc layer 0 has ffn
+projected weight_size torch.Size([864, 288])
+enc layer 1 has ffn
+projected weight_size torch.Size([864, 288])
+enc layer 2 has ffn
+projected weight_size torch.Size([864, 288])
+enc layer 3 has ffn
+projected weight_size torch.Size([864, 288])
+enc layer 4 has ffn
+projected weight_size torch.Size([864, 288])
+['dot']
+dec layer 0 has ffn
+projected weight_size torch.Size([864, 288])
+not projected weight_size torch.Size([288, 288])
+layer 0 num of src heads 4
+dec layer 1 has ffn
+projected weight_size torch.Size([864, 288])
+not projected weight_size torch.Size([288, 288])
+layer 1 num of src heads 4
+dec layer 2 has ffn
+projected weight_size torch.Size([864, 288])
+not projected weight_size torch.Size([288, 288])
+layer 2 num of src heads 4
+dec layer 3 has ffn
+projected weight_size torch.Size([864, 288])
+not projected weight_size torch.Size([288, 288])
+layer 3 num of src heads 4
+dec layer 4 has ffn
+projected weight_size torch.Size([864, 288])
+not projected weight_size torch.Size([288, 288])
+layer 4 num of src heads 4
